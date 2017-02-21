@@ -118,7 +118,7 @@ suggestVersion newDocs name version description =
             in
             concat
             [ "Based on your new API, this should be a ", magnitude, " change (", old, " => ", new, ")\n"
-            , "Bail out of this command and run 'elm-package diff' for a full explanation.\n"
+            , "Bail out of this command and run 'elmer-package diff' for a full explanation.\n"
             , "\n"
             , "Should I perform the update (", old, " => ", new, ") in ", Path.description, "? [Y/n] "
             ]
@@ -173,4 +173,3 @@ validBumps publishedVersions =
     patchPoints = Package.filterLatest Package.majorAndMinor publishedVersions
     minorPoints = Package.filterLatest Package._major publishedVersions
     majorPoint = head publishedVersions
-

@@ -26,11 +26,11 @@ parser :: Opt.ParserInfo (Manager.Manager ())
 parser =
   B.info flagParser $ mconcat $
     [ B.fullDesc
-    , B.progDesc "install and publish elm packages"
-    , B.header ("elm-package " ++ Package.versionToString Compiler.version)
+    , B.progDesc "install and publish elm packages, including brian-watkins/elmer"
+    , B.header ("elmer-package " ++ Package.versionToString Compiler.version)
     , B.footerDoc $ Just $ P.nest 2 $ P.vcat $ map P.text $
         [ "To learn more about a particular command run:"
-        , "elm-package COMMAND --help"
+        , "elmer-package COMMAND --help"
         ]
     ]
 
@@ -119,9 +119,10 @@ installInfo =
     examples =
         P.nest 2 $ P.vcat $ map P.text $
           [ "Examples:"
-          , "elm-package install                      # everything needed by " ++ Path.description
-          , "elm-package install elm-lang/html        # any version"
-          , "elm-package install elm-lang/html 1.0.0  # specific version"
+          , "elmer-package install                      # everything needed by " ++ Path.description
+          , "elmer-package install elm-lang/html        # any version"
+          , "elmer-package install elm-lang/html 1.0.0  # specific version"
+          , "elmer-package install brian-watkins/elmer  # install Elmer!"
           ]
 
 

@@ -1,3 +1,13 @@
+# elmer-package
+
+A fork of elm-package that knows how to install [brian-watkins/elmer](https://github.com/brian-watkins/elmer).
+
+```
+$ elmer-package install brian-watkins/elmer
+```
+
+Original README follows ...
+
 # elm-package
 
 The package manager for Elm. The full catalog of community libraries

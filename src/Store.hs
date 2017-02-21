@@ -45,8 +45,8 @@ initialStore =
 readVersionCache :: Manager.Manager VersionCache
 readVersionCache =
   do  cacheDirectory <- asks Manager.cacheDirectory
-      let versionsFile = cacheDirectory </> "versions.dat"
-      let lastUpdatedPath = cacheDirectory </> "last-updated"
+      let versionsFile = cacheDirectory </> "elmer-pkg-versions.dat"
+      let lastUpdatedPath = cacheDirectory </> "elmer-pkg-last-updated"
 
       now <- liftIO Time.getCurrentTime
 
@@ -60,7 +60,7 @@ readVersionCache =
 
       maybePackages <- Catalog.allPackages maybeTime
 
-      case maybePackages of
+      elmPackages <- case maybePackages of
         Nothing ->
           do  exists <- liftIO (Dir.doesFileExist versionsFile)
               case exists of
@@ -77,7 +77,17 @@ readVersionCache =
                   liftIO $ writeFile lastUpdatedPath (show now)
                   return cache
 
+      maybeElmerPackage <- Catalog.elmerPackage maybeTime
 
+      case maybeElmerPackage of
+        Nothing ->
+          return elmPackages
+
+        Just elmerPackage ->
+          let elmerCache :: VersionCache
+              elmerCache = Map.fromList elmerPackage
+          in
+            return $ Map.union elmerCache elmPackages
 
 -- CONSTRAINTS
 

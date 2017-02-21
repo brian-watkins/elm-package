@@ -169,7 +169,7 @@ toMessage err =
     CorruptDocumentation problem ->
       Message
         ( "I was able to produce documentation for your package, but it is not valid.\
-          \ My guess is that the elm-package and elm-make on your PATH are not from the\
+          \ My guess is that the elmer-package and elm-make on your PATH are not from the\
           \ same version of Elm, but it could be some other similarly crazy thing."
         )
         [ text problem
@@ -198,7 +198,7 @@ toMessage err =
             [ reflow $
                 "One way to rebuild your constraints is to clear everything out of\
                 \ the \"dependencies\" field of " ++ Path.description ++ " and add\
-                \ them back one at a time with `elm-package install`."
+                \ them back one at a time with `elmer-package install`."
             , reflow $
                 "I hope to automate this in the future, but at least there is\
                 \ a way to make progress for now!"
@@ -246,7 +246,7 @@ toMessage err =
 
     VersionInvalid ->
       Message
-        "Cannot publish a package with an invalid version. Use `elm-package bump` to\
+        "Cannot publish a package with an invalid version. Use `elmer-package bump` to\
         \ figure out what the next version should be, and be sure you commit any\
         \ changes and tag them appropriately."
         []
@@ -288,7 +288,7 @@ toMessage err =
           \ You cannot publish it again! Run the following command to see what\
           \ the new version should be:"
         )
-        [ indent 4 $ text "elm-package bump"
+        [ indent 4 $ text "elmer-package bump"
         ]
 
     Unbumpable vsn versions ->
@@ -325,7 +325,7 @@ toMessage err =
             "Generally, you want to put the most recently published version ("
             ++ Pkg.versionToString latestVersion ++ " for this package) in your "
             ++ Path.description
-            ++ " and run `elm-package bump` to figure out what should come next."
+            ++ " and run `elmer-package bump` to figure out what should come next."
         ]
 
     BadBump old new magnitude realNew realMagnitude ->
@@ -335,7 +335,7 @@ toMessage err =
           ++ " change to the public API. This does not match the API diff given by:"
         )
         [ indent 4 $ text $
-            "elm-package diff " ++ Pkg.versionToString old
+            "elmer-package diff " ++ Pkg.versionToString old
 
         , reflow $
           "This command says this is a " ++ show realMagnitude
@@ -343,7 +343,7 @@ toMessage err =
           ++ Pkg.versionToString realNew
           ++ ". Double check everything to make sure you are publishing what you want!"
         , reflow $
-            "Also, next time use `elm-package bump` and I'll figure all this out for you!"
+            "Also, next time use `elmer-package bump` and I'll figure all this out for you!"
         ]
 
 
@@ -362,7 +362,7 @@ hintToDoc hint =
         , reflow $
             "But there are no released versions in that range! I recommend\
             \ removing that constraint by hand and adding it back with:"
-        , indent 4 $ text $ "elm-package install " ++ Pkg.toString name
+        , indent 4 $ text $ "elmer-package install " ++ Pkg.toString name
         ]
 
     IncompatibleConstraint name constraint viableVersion ->
@@ -374,7 +374,7 @@ hintToDoc hint =
             ++ Pkg.versionToString Compiler.version ++ ". I recommend removing\
             \ that dependency by hand and adding it back with:"
         , indent 4 $
-            text ("elm-package install " ++ Pkg.toString name)
+            text ("elmer-package install " ++ Pkg.toString name)
             <+> dullyellow (text (Pkg.versionToString viableVersion))
         ]
 

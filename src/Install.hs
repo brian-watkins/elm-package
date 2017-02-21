@@ -177,7 +177,7 @@ addNewDependency autoYes name version description =
     noConfirmation =
         "Cannot install the new package unless it appears in " ++ Path.description ++ ".\n" ++
         "If you do not like the constraint I suggested, change it manually and then run:\n" ++
-        "\n    elm-package install\n\n" ++
+        "\n    elmer-package install\n\n" ++
         "This will install everything listed in " ++ Path.description ++ "."
 
     confirmNewAddition =

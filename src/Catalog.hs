@@ -9,6 +9,8 @@ import qualified Data.Aeson as Json
 import qualified Data.Binary as Binary
 import qualified Data.ByteString.Lazy as LBS
 import qualified Data.Time.Clock as Time
+import qualified Data.List as List
+import qualified Data.ByteString.Lazy.Char8 as Char8
 import Data.Version (showVersion)
 import Network.HTTP
 import qualified Network.HTTP.Client as Client
@@ -22,21 +24,25 @@ import qualified Elm.Package.Description as Desc
 import qualified Elm.Package as Package
 import qualified Elm.Package.Paths as P
 import qualified Manager
-import qualified Paths_elm_package as This
+import qualified Paths_elmer_package as This
 import qualified Reporting.Error as Error
 import qualified Utils.Http as Http
-
-
+import qualified Elmer
 
 -- MAKE URL
+
+catalogUrl :: String -> String -> [(String,String)] -> String
+catalogUrl host path vars =
+  let
+    version = ("elm-package-version", showVersion This.version)
+  in
+    host ++ "/" ++ path ++ "?" ++ urlEncodeVars (version : vars)
 
 
 catalog :: String -> [(String,String)] -> Manager.Manager String
 catalog path vars =
   do  domain <- asks Manager.catalog
-      return $ domain ++ "/" ++ path ++ "?" ++ urlEncodeVars (version : vars)
-  where
-    version = ("elm-package-version", showVersion This.version)
+      return $ catalogUrl domain path vars
 
 
 
@@ -76,6 +82,24 @@ allPackages maybeTime =
 
             Right summaries ->
               return $ Just $ map (\(PackageSummary s) -> s) summaries
+  where
+    vars =
+      case maybeTime of
+        Nothing -> []
+        Just time -> [("since", show time)]
+
+elmerPackage :: Maybe Time.UTCTime -> Manager.Manager (Maybe [(Package.Name, [Package.Version])])
+elmerPackage maybeTime =
+  do  elmerUrl <- return $ catalogUrl Elmer.catalogHost "all-packages" vars
+      Http.send elmerUrl $ \request manager -> do
+          elmerResponse <- Client.httpLbs request manager
+          case Json.eitherDecode (Client.responseBody elmerResponse) of
+            Left _ ->
+              return $ Nothing
+
+            Right elmerVersions ->
+              return $ Just $ map (\(PackageSummary s) -> s) elmerVersions
+
   where
     vars =
       case maybeTime of
@@ -131,6 +155,18 @@ documentation name version =
   getJson "documentation" "documentation.json" name version
 
 
+jsonUrl :: String -> Package.Name -> Package.Version -> Manager.Manager String
+jsonUrl metadata name version =
+  let
+    vars = [("name", Package.toString name), ("version", Package.versionToString version)]
+  in
+    do
+      if name == Elmer.packageName then
+        return $ catalogUrl Elmer.catalogHost metadata vars
+        else do
+          catalog metadata vars
+
+
 getJson :: (Json.FromJSON a) => String -> FilePath -> Package.Name -> Package.Version -> Manager.Manager a
 getJson metadata metadataPath name version =
   do  cacheDir <- asks Manager.cacheDirectory
@@ -145,7 +181,7 @@ getJson metadata metadataPath name version =
             liftIO (LBS.readFile fullMetadataPath)
 
           False ->
-            do  url <- catalog metadata [("name", Package.toString name), ("version", Package.versionToString version)]
+            do  url <- jsonUrl metadata name version
                 Http.send url $ \request manager ->
                     do  response <- Client.httpLbs request manager
                         createDirectoryIfMissing True (dropFileName fullMetadataPath)
